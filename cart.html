@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cart</title>
+<link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+<h2 style="text-align:center; margin:20px;">Your Cart 🛒</h2>
+
+<div id="cartContainer" style="padding:20px;"></div>
+
+<script>
+
+const cartContainer = document.getElementById("cartContainer");
+
+let cart = JSON.parse(localStorage.getItem("cart")) || [];
+
+// ✅ FIX OLD DATA
+cart = cart.map(item => ({
+  ...item,
+  qty: item.qty || 1
+}));
+
+localStorage.setItem("cart", JSON.stringify(cart));
+
+let total = 0;
+
+if(cart.length === 0){
+
+  cartContainer.innerHTML = "<p style='text-align:center;'>Cart is empty</p>";
+
+}else{
+
+  cart.forEach((item, index) => {
+
+    total += item.price * item.qty;
+
+    const div = document.createElement("div");
+    div.classList.add("cart-card"); // ✅ use your CSS
+
+    div.innerHTML = `
+      <div class="cart-left">
+        <img src="${item.image}">
+      </div>
+
+      <div class="cart-right">
+        <h3>${item.name}</h3>
+        <p class="price">₹${item.price}</p>
+
+        <div class="qty-box">
+          <button onclick="changeQty(${index}, -1)">−</button>
+          <span>${item.qty}</span>
+          <button onclick="changeQty(${index}, 1)">+</button>
+        </div>
+
+        <button class="remove-btn" onclick="removeItem(${index})">Remove</button>
+      </div>
+    `;
+
+    cartContainer.appendChild(div);
+
+  });
+
+  // ✅ TOTAL + BUTTON (styled)
+  const totalBox = document.createElement("div");
+  totalBox.classList.add("cart-total");
+
+  totalBox.innerHTML = `
+    <h3>Total: ₹${total}</h3>
+    <button class="order-btn-main" onclick="orderAll()">Order on WhatsApp</button>
+  `;
+
+  cartContainer.appendChild(totalBox);
+}
+
+// ✅ REMOVE ITEM
+function removeItem(index){
+  let cart = JSON.parse(localStorage.getItem("cart")) || [];
+  cart.splice(index, 1);
+  localStorage.setItem("cart", JSON.stringify(cart));
+  location.reload();
+}
+
+// ✅ CHANGE QTY
+function changeQty(index, change){
+  let cart = JSON.parse(localStorage.getItem("cart")) || [];
+
+  cart[index].qty += change;
+
+  if(cart[index].qty <= 0){
+    cart.splice(index, 1);
+  }
+
+  localStorage.setItem("cart", JSON.stringify(cart));
+  location.reload();
+}
+
+// ✅ WHATSAPP ORDER (with qty + total)
+function orderAll(){
+
+  let cart = JSON.parse(localStorage.getItem("cart")) || [];
+
+  if(cart.length === 0){
+    alert("Cart is empty");
+    return;
+  }
+
+  let message = "🛍️ Order Details:\n\n";
+
+  let total = 0;
+
+  cart.forEach((item, i) => {
+
+    message += `${i+1}. ${item.name} (x${item.qty}) - ₹${item.price}\n`;
+
+    total += item.price * item.qty;
+
+  });
+
+  message += `\n💰 Total: ₹${total}`;
+
+  // ✅ IMPORTANT CHANGE
+  const encodedMessage = encodeURIComponent(message);
+
+  window.open(`https://api.whatsapp.com/send?phone=917010262185&text=${encodedMessage}`);
+
+}
+
+</script>
+
+</body>
+</html>

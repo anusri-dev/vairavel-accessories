@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Wishlist</title>
+<link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+<h2 style="text-align:center; margin:20px;">Your Wishlist ❤️</h2>
+
+<div id="wishlistContainer" style="padding:20px;"></div>
+
+<script>
+
+const container = document.getElementById("wishlistContainer");
+
+// get wishlist data
+let wishlist = JSON.parse(localStorage.getItem("wishlist")) || [];
+
+if(wishlist.length === 0){
+
+  container.innerHTML = "<p style='text-align:center;'>No items in wishlist</p>";
+
+}else{
+
+  wishlist.forEach(item => {
+
+    const div = document.createElement("div");
+
+    div.style.border = "1px solid #ccc";
+    div.style.padding = "15px";
+    div.style.marginBottom = "10px";
+
+   div.classList.add("item-card");
+
+div.innerHTML = `
+  <img src="${item.image}">
+  
+  <div class="item-details">
+    <h3>${item.name}</h3>
+    <p>₹${item.price}</p>
+  </div>
+
+  <div class="item-actions">
+    <button onclick="removeItem('${item.id}')">Remove ❌</button>
+  </div>
+`;
+    container.appendChild(div);
+
+  });
+
+}function removeItem(id){
+
+  let wishlist = JSON.parse(localStorage.getItem("wishlist")) || [];
+
+  wishlist = wishlist.filter(item => item.id !== id);
+
+  localStorage.setItem("wishlist", JSON.stringify(wishlist));
+
+  location.reload();
+}
+</script>
+
+</body>
+</html>
